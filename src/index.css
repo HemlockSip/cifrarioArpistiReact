@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Metamorphous&display=swap');
+
+body {
+  margin: 0;
+  /* font-family è ora gestito in App.css per specificità */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Eventuali altri stili globali o reset possono andare qui */
+*, *::before, *::after {
+    box-sizing: border-box; /* Migliore gestione di padding e border */
+}

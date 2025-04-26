@@ -1,0 +1,362 @@
+/* Stili per il Cifrario degli Arpisti */
+
+:root {
+    --primary-color: #4c5fd5; /* Blu più deciso */
+    --primary-hover: #3a4bb3; /* Blu più scuro per hover */
+    --text-main: #1b1212; /* Nero quasi puro per testo principale */
+    --text-secondary: #555; /* Grigio scuro per testo secondario */
+    --border-color: #ccc; /* Grigio più chiaro per bordi */
+    --bg-main: #f8f4e6; /* Sfondo principale (pergamena chiara) */
+    --bg-element: #f6eac5; /* Sfondo elementi (pergamena leggermente più scura) */
+    --bg-modal: #f6eac5; /* Sfondo modali */
+    --bg-hover: #f0e4c5; /* Sfondo hover leggero */
+    --error-color: #8b0000; /* Rosso scuro per errori */
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombra più morbida */
+    --border-radius: 6px; /* Bordi leggermente più arrotondati */
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+  }
+  
+  body {
+    font-family: "Metamorphous", serif; /* Usa il font specificato */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.6;
+  }
+  
+  /* Stile base link */
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  header {
+    background-color: var(--bg-element);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  h1 {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 2em; /* Dimensione più grande per H1 */
+  }
+  
+  h2 {
+      margin-top: 0;
+      margin-bottom: var(--spacing-lg);
+      color: var(--text-main);
+      font-size: 1.5em;
+  }
+  
+  h3 {
+      margin-top: 0;
+      margin-bottom: var(--spacing-md);
+      font-size: 1.2em;
+      color: var(--text-main);
+  }
+  
+  main {
+    flex: 1;
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Rimuovi justify-content: center per allineare in alto */
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box; /* Include padding nel width */
+  }
+  
+  /* Contenitore della vista messaggi o modale */
+  .message-view, .modal {
+      width: 100%;
+      max-width: 900px; /* Larghezza massima per la lista */
+      margin-bottom: var(--spacing-xl);
+  }
+  
+  .message-list {
+    display: grid;
+    /* Colonne responsive: 3 su large, 2 su medium, 1 su small */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    width: 100%;
+    margin-top: var(--spacing-md);
+  }
+  
+  .message-card {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    background-color: var(--bg-element);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  .message-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+  
+  .message-icon {
+    width: 80px;
+    flex-shrink: 0; /* Impedisce all'icona di restringersi */
+    background-color: var(--bg-element); /* Stesso colore o leggermente diverso */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm);
+    border-right: 1px solid var(--border-color);
+  }
+  
+  .message-icon svg {
+    width: 50px; /* Dimensione icona */
+    height: 50px;
+  }
+  
+  .message-info {
+    padding: var(--spacing-md);
+    flex: 1;
+    /* background-color: #fff; Rimosso, usa lo sfondo della card */
+  }
+  
+  .message-sender {
+    font-weight: bold;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-main);
+  }
+  
+  .message-context {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  
+  /* Stili Modali */
+  .modal {
+    display: none; /* Nascosto di default, mostrato da App.js con style={{ display: 'flex' }} */
+    position: fixed; /* Sovrapposto al resto */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Sfondo semi-trasparente */
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra orizzontalmente */
+    z-index: 1000; /* Sopra tutto il resto */
+    padding: var(--spacing-md); /* Spazio ai bordi su mobile */
+    box-sizing: border-box;
+  }
+  
+  .modal-content {
+    background-color: var(--bg-modal);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--border-radius);
+    max-width: 550px; /* Larghezza massima modale */
+    width: 100%; /* Occupa la larghezza disponibile fino al max */
+    text-align: center;
+    box-shadow: var(--shadow);
+    max-height: 90vh; /* Altezza massima */
+    overflow-y: auto; /* Scroll se il contenuto è troppo alto */
+    box-sizing: border-box;
+  }
+  
+  .key-input-container {
+    margin: var(--spacing-lg) 0;
+  }
+  
+  .key-input {
+    width: 100%;
+    padding: var(--spacing-md);
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box; /* Include padding nel width */
+    font-family: inherit; /* Usa lo stesso font */
+  }
+  .key-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(76, 95, 213, 0.2);
+  }
+  
+  /* Bottoni */
+  button {
+      font-family: inherit; /* Usa lo stesso font */
+      cursor: pointer;
+      border-radius: var(--border-radius);
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: 0.95rem;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+      border: 1px solid transparent;
+      line-height: 1.5; /* Migliore allineamento verticale testo/icona */
+  }
+  
+  .decrypt-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 1rem;
+    font-weight: bold;
+    display: inline-flex; /* Permette allineamento icona */
+    align-items: center;
+    justify-content: center;
+    margin: var(--spacing-md) auto; /* Centra se è l'unico bottone */
+  }
+  
+  .decrypt-button:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .decrypt-button .lock-icon { /* Stile specifico icona nel bottone */
+    margin-right: var(--spacing-sm);
+    font-size: 1.1em; /* Leggermente più grande */
+  }
+  
+  .back-button {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: var(--spacing-sm); /* Spazio tra i bottoni back */
+  }
+  
+  .back-button:hover {
+    background-color: var(--bg-hover);
+    border-color: #bbb; /* Bordo leggermente più scuro su hover */
+    color: var(--text-main);
+  }
+  
+  .back-button .home-icon,
+  .back-button .lock-icon { /* Stile icone bottoni back */
+    margin-right: var(--spacing-sm);
+    font-size: 1.1em;
+  }
+  
+  .message-display {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    text-align: left;
+    background-color: #fff; /* Sfondo bianco per leggibilità testo lungo */
+    max-height: 400px; /* Limita altezza e abilita scroll */
+    overflow-y: auto;
+    white-space: pre-wrap; /* Preserva spazi e ritorni a capo */
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  
+  .error-message {
+    color: var(--error-color);
+    margin: var(--spacing-md) 0;
+    font-weight: bold;
+  }
+  
+  /* Stili Loading e No Messages */
+  .loading, .no-messages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    min-height: 150px; /* Altezza minima per dare spazio */
+  }
+  
+  .loading-icon {
+    border: 5px solid #f3f3f3; /* Grigio chiaro */
+    border-top: 5px solid var(--primary-color); /* Colore primario */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1.5s linear infinite;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 1.8em;
+    }
+    main {
+      padding: var(--spacing-lg);
+    }
+    .message-list {
+       /* Già gestito da auto-fit, ma si potrebbe forzare 1 colonna prima */
+       /* grid-template-columns: 1fr; */
+       gap: var(--spacing-md);
+    }
+     .modal-content {
+        padding: var(--spacing-lg);
+        max-width: 95%; /* Più largo su mobile */
+     }
+     /* Stack verticale per i bottoni nelle modali su mobile */
+     .modal-content form button,
+     .modal-content > button { /* Seleziona bottoni figli diretti della modale */
+         width: 100%;
+         margin-left: 0;
+         margin-right: 0;
+         margin-bottom: var(--spacing-sm); /* Spazio tra bottoni stacked */
+     }
+     .modal-content > button:last-child {
+         margin-bottom: 0;
+     }
+  }
+  
+  @media (max-width: 576px) {
+    body {
+      font-size: 15px; /* Leggermente più grande base su mobile per leggibilità */
+    }
+    h1 {
+      font-size: 1.6em;
+    }
+    .message-card {
+        flex-direction: column; /* Icona sopra testo su mobile */
+    }
+    .message-icon {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: var(--spacing-md);
+    }
+    .message-icon svg {
+        width: 45px;
+        height: 45px;
+    }
+    .message-info {
+        padding: var(--spacing-md);
+    }
+    .key-input {
+        padding: var(--spacing-sm); /* Padding input leggermente ridotto */
+    }
+    button {
+        padding: var(--spacing-sm) var(--spacing-md); /* Padding bottoni leggermente ridotto */
+    }
+  }
