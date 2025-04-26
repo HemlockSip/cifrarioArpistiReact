@@ -1,14 +1,37 @@
 // src/components/App.js
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 import MessageList from './MessageList';
-import KeyInputModal from './KeyInputModal';
-import DecryptedMessageModal from './DecryptedMessageModal';
-import ErrorModal from './ErrorModal';
-import ModalWrapper from './ModalWrapper'; // Import the new wrapper
+import ModalWrapper from './ModalWrapper';
+import Login from './auth/Login';
+import Register from './auth/Register';
+import ProtectedRoute from './auth/ProtectedRoute';
 import useMessages from '../hooks/useMessages';
 import '../App.css';
+import './auth/Auth.css';
 
-function App() {
+// Navigation component with logout functionality
+function Navigation() {
+  const { isLoggedIn, logout, user } = useAuth();
+
+  return (
+    <header>
+      <h1>Cifrario degli Arpisti</h1>
+      {isLoggedIn && (
+        <div className="user-controls">
+          <span className="user-email">{user?.email}</span>
+          <button className="logout-button" onClick={logout}>
+            Esci
+          </button>
+        </div>
+      )}
+    </header>
+  );
+}
+
+// Main app content with message functionality
+function MainContent() {
   const { messages, loading, error } = useMessages();
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [currentView, setCurrentView] = useState('list'); // 'list', 'key', 'decrypted', 'error'
@@ -41,18 +64,13 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <header>
-        <h1>Cifrario degli Arpisti</h1>
-      </header>
-      <main>
-        <MessageList
-          messages={messages}
-          loading={loading}
-          error={error}
-          onSelectMessage={handleSelectMessage}
-        />
-      </main>
+    <main>
+      <MessageList
+        messages={messages}
+        loading={loading}
+        error={error}
+        onSelectMessage={handleSelectMessage}
+      />
 
       {/* Modal for key input */}
       <ModalWrapper isOpen={currentView === 'key'}>
@@ -110,7 +128,52 @@ function App() {
           </button>
         </div>
       </ModalWrapper>
-    </div>
+    </main>
+  );
+}
+
+// LoginRoute component - redirects authenticated users to homepage
+function LoginRoute() {
+  const { isLoggedIn } = useAuth();
+  
+  if (isLoggedIn) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <Login />;
+}
+
+// RegisterRoute component - redirects authenticated users to homepage
+function RegisterRoute() {
+  const { isLoggedIn } = useAuth();
+  
+  if (isLoggedIn) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <Register />;
+}
+
+// Root App component with routing
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <div className="app">
+          <Navigation />
+          
+          <Routes>
+            <Route path="/login" element={<LoginRoute />} />
+            <Route path="/register" element={<RegisterRoute />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <MainContent />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </Router>
   );
 }
 

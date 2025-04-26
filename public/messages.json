@@ -5,7 +5,10 @@
       "context": "Trovato sotto la porta d'ingresso di casa vostra",
       "encrypted": "qvs ybmrs cdkxxy bknexkxny pyblo xovvk pybocdk kvdk. nygbocdo wkxnkbo exk zkddeqvsk\n\nns bsmyqxslsyxo oxdby dbo qsybxs...",
       "decrypted": "A mezzogiorno. Solito posto. Notizie importanti da Nord. ",
-      "key": "arpa"
+      "key": "arpa",
+      "status": "open",
+      "second_key": "jamphranko",
+      "second_message": "troll" 
     },
     {
       "id": 2,

@@ -9,5 +9,5 @@ body {
 
 /* Eventuali altri stili globali o reset possono andare qui */
 *, *::before, *::after {
-    /* Migliore gestione di padding e border */
+    box-sizing: border-box; /* Migliore gestione di padding e border */
 }
