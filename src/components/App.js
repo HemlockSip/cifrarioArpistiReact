@@ -32,7 +32,7 @@ function Navigation() {
 
 // Main app content with message functionality
 function MainContent() {
-  const { messages, loading, error } = useMessages();
+  const { messages, loading, error, markMessageAsOpened } = useMessages();
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [currentView, setCurrentView] = useState('list'); // 'list', 'key', 'decrypted', 'error'
   const [decryptedContent, setDecryptedContent] = useState('');
@@ -42,11 +42,16 @@ function MainContent() {
     setCurrentView('key');
   };
 
-  const handleDecrypt = (key) => {
+  const handleDecrypt = async (key) => {
     if (selectedMessage && key.toLowerCase() === selectedMessage.key.toLowerCase()) {
       // Chiave corretta
       setDecryptedContent(selectedMessage.decrypted);
       setCurrentView('decrypted');
+      
+      // Mark the message as opened in the database
+      if (!selectedMessage.opened) {
+        await markMessageAsOpened(selectedMessage.id);
+      }
     } else {
       // Chiave errata
       setCurrentView('error');
