@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import MessageCard from './MessageCard';
 
-function MessageList({ messages, loading, error, onSelectMessage }) {
+const MessageList = memo(({ messages, loading, error, onSelectMessage }) => {
+  const memoizedMessages = useMemo(() => {
+    return messages.map(message => ({
+      ...message,
+      onSelect: () => onSelectMessage(message)
+    }));
+  }, [messages, onSelectMessage]);
+
   if (loading) {
     return (
       <div className="message-view">
@@ -41,16 +48,18 @@ function MessageList({ messages, loading, error, onSelectMessage }) {
     <div className="message-view">
       <h2>Messaggi Disponibili</h2>
       <div className="message-list">
-        {messages.map(message => (
+        {memoizedMessages.map(message => (
           <MessageCard
-            key={message.id} // Assicurati che i tuoi messaggi abbiano un ID univoco
+            key={message.id}
             message={message}
-            onClick={() => onSelectMessage(message)}
+            onClick={message.onSelect}
           />
         ))}
       </div>
     </div>
   );
-}
+});
+
+MessageList.displayName = 'MessageList';
 
 export default MessageList;

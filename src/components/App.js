@@ -1,13 +1,18 @@
-// src/components/App.js
-import React, { useState } from 'react';
+// src/components/App.js - Fixed version with correct imports
+import React, { useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import MessageList from './MessageList';
-import ModalWrapper from './ModalWrapper';
 import Login from './auth/Login';
 import Register from './auth/Register';
 import ProtectedRoute from './auth/ProtectedRoute';
+import KeyInputModal from './KeyInputModal';
+import DecryptedMessageModal from './DecryptedMessageModal';
+import ErrorModal from './ErrorModal';
 import useMessages from '../hooks/useMessages';
+import { useAppState } from '../hooks/useAppState';
+import { useMessageDecryption } from '../hooks/useMessageDecryption';
+import { useModalNavigation } from '../hooks/useModalNavigation';
 import '../App.css';
 import './auth/Auth.css';
 
@@ -33,40 +38,30 @@ function Navigation() {
 // Main app content with message functionality
 function MainContent() {
   const { messages, loading, error, markMessageAsOpened } = useMessages();
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [currentView, setCurrentView] = useState('list'); // 'list', 'key', 'decrypted', 'error'
-  const [decryptedContent, setDecryptedContent] = useState('');
+  const { state, actions } = useAppState();
+  
+  const {
+    navigateToList,
+    navigateToKey,
+    navigateToDecrypted,
+    navigateToError,
+  } = useModalNavigation({ actions });
 
-  const handleSelectMessage = (message) => {
-    setSelectedMessage(message);
-    setCurrentView('key');
-  };
+  const { decryptMessage } = useMessageDecryption({
+    markMessageAsOpened,
+    onSuccess: navigateToDecrypted,
+    onError: navigateToError,
+  });
 
-  const handleDecrypt = async (key) => {
-    if (selectedMessage && key.toLowerCase() === selectedMessage.key.toLowerCase()) {
-      // Chiave corretta
-      setDecryptedContent(selectedMessage.decrypted);
-      setCurrentView('decrypted');
-      
-      // Mark the message as opened in the database
-      if (!selectedMessage.opened) {
-        await markMessageAsOpened(selectedMessage.id);
-      }
-    } else {
-      // Chiave errata
-      setCurrentView('error');
+  const handleSelectMessage = useCallback((message) => {
+    actions.selectMessage(message);
+  }, [actions]);
+
+  const handleDecrypt = useCallback(async (key) => {
+    if (state.selectedMessage) {
+      await decryptMessage(state.selectedMessage, key);
     }
-  };
-
-  const handleBackToList = () => {
-    setCurrentView('list');
-    setSelectedMessage(null);
-    setDecryptedContent('');
-  };
-
-  const handleBackToKey = () => {
-    setCurrentView('key');
-  };
+  }, [state.selectedMessage, decryptMessage]);
 
   return (
     <main>
@@ -77,87 +72,37 @@ function MainContent() {
         onSelectMessage={handleSelectMessage}
       />
 
-      {/* Modal for key input */}
-      <ModalWrapper isOpen={currentView === 'key'}>
-        <div className="modal-content">
-          <h3>Digita la Chiave di Lettura</h3>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const keyInput = e.target.elements.keyInput;
-            if (keyInput.value.trim()) {
-              handleDecrypt(keyInput.value.trim());
-            }
-          }}>
-            <div className="key-input-container">
-              <input
-                type="text"
-                className="key-input"
-                name="keyInput"
-                placeholder="Inserisci la chiave..."
-                autoFocus
-              />
-            </div>
-            <button type="submit" className="decrypt-button">
-              <span className="lock-icon">🔓</span> Decifra
-            </button>
-            <button type="button" className="back-button" onClick={handleBackToList}>
-              <span className="home-icon">🏠</span> Messaggi Disponibili
-            </button>
-          </form>
-        </div>
-      </ModalWrapper>
+      <KeyInputModal
+        isOpen={state.currentView === 'key'}
+        onDecrypt={handleDecrypt}
+        onCancel={navigateToList}
+      />
 
-      {/* Modal for decrypted message */}
-      <ModalWrapper isOpen={currentView === 'decrypted'}>
-        <div className="modal-content">
-          <h3>Il messaggio prende forma davanti ai tuoi occhi</h3>
-          <div className="message-display">
-            {decryptedContent}
-          </div>
-          <button className="back-button" onClick={handleBackToList}>
-            <span className="home-icon">🏠</span> Messaggi Disponibili
-          </button>
-        </div>
-      </ModalWrapper>
+      <DecryptedMessageModal
+        isOpen={state.currentView === 'decrypted'}
+        message={state.decryptedContent}
+        onClose={navigateToList}
+      />
 
-      {/* Modal for error */}
-      <ModalWrapper isOpen={currentView === 'error'}>
-        <div className="modal-content">
-          <h3>Il messaggio che prende forma davanti ai tuoi occhi non sembra avere alcun senso compiuto.</h3>
-          <p className="error-message">Probabilmente la chiave di lettura non è corretta.</p>
-          <button className="back-button" onClick={handleBackToKey}>
-            <span className="lock-icon">🔑</span> Riprova
-          </button>
-          <button className="back-button" onClick={handleBackToList}>
-            <span className="home-icon">🏠</span> Messaggi Disponibili
-          </button>
-        </div>
-      </ModalWrapper>
+      <ErrorModal
+        isOpen={state.currentView === 'error'}
+        onRetry={navigateToKey}
+        onClose={navigateToList}
+      />
     </main>
   );
 }
 
-// LoginRoute component - redirects authenticated users to homepage
-function LoginRoute() {
+// Route wrapper components
+const LoginRoute = () => {
   const { isLoggedIn } = useAuth();
-  
-  if (isLoggedIn) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return <Login />;
-}
+  return isLoggedIn ? <Navigate to="/" replace /> : <Login />;
+};
 
-// RegisterRoute component - redirects authenticated users to homepage
-function RegisterRoute() {
+const RegisterRoute = () => {
   const { isLoggedIn } = useAuth();
-  
-  if (isLoggedIn) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return <Register />;
-}
+  return isLoggedIn ? <Navigate to="/" replace /> : <Register />;
+};
 
 // Root App component with routing
 function App() {

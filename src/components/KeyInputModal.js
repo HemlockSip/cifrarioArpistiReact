@@ -1,61 +1,71 @@
-import React, { useState, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom'; // Import ReactDOM
+// src/components/KeyInputModal.js (Updated existing file)
+import React, { useState, useRef, useEffect, memo } from 'react';
+import ModalWrapper from './ModalWrapper';
 
-function KeyInputModal({ onDecrypt, onCancel }) {
+const KeyInputModal = memo(({ isOpen, onDecrypt, onCancel }) => {
   const [key, setKey] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef(null);
-  const modalRoot = document.body; // Or a dedicated div like #modal-root
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (isOpen && inputRef.current) {
       inputRef.current.focus();
+      setKey(''); // Reset key when modal opens
     }
-  }, []);
+  }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (key.trim()) {
-      onDecrypt(key.trim());
+    if (key.trim() && !isSubmitting) {
+      setIsSubmitting(true);
+      try {
+        await onDecrypt(key.trim());
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-        handleSubmit(e);
-    }
-  };
+  if (!isOpen) return null;
 
-  // The modal content remains the same
-  const modalContent = (
-    <div className="modal" style={{ display: 'flex' /* position/inset might be redundant now if CSS is solid */ }}>
+  return (
+    <ModalWrapper isOpen={isOpen}>
       <div className="modal-content">
         <h3>Digita la Chiave di Lettura</h3>
         <form onSubmit={handleSubmit}>
-          {/* ... input and buttons ... */}
-           <div className="key-input-container">
-              <input
-                type="text"
-                className="key-input"
-                placeholder="Inserisci la chiave..."
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                onKeyPress={handleKeyPress}
-                ref={inputRef}
-              />
-            </div>
-            <button type="submit" className="decrypt-button">
-              <span className="lock-icon">🔓</span> Decifra
-            </button>
-            <button type="button" className="back-button" onClick={onCancel}>
-              <span className="home-icon">🏠</span> Messaggi Disponibili
-            </button>
+          <div className="key-input-container">
+            <input
+              type="text"
+              className="key-input"
+              placeholder="Inserisci la chiave..."
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              ref={inputRef}
+              disabled={isSubmitting}
+            />
+          </div>
+          <button 
+            type="submit" 
+            className="decrypt-button"
+            disabled={!key.trim() || isSubmitting}
+          >
+            <span className="lock-icon">🔓</span> 
+            {isSubmitting ? 'Decifrando...' : 'Decifra'}
+          </button>
+          <button 
+            type="button" 
+            className="back-button" 
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            <span className="home-icon">🏠</span> Messaggi Disponibili
+          </button>
         </form>
       </div>
-    </div>
+    </ModalWrapper>
   );
+});
 
-  // Use the portal to render into the body
-  return ReactDOM.createPortal(modalContent, modalRoot);
-}
+KeyInputModal.displayName = 'KeyInputModal';
 
 export default KeyInputModal;

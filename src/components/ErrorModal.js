@@ -1,8 +1,12 @@
-import React from 'react';
+// src/components/ErrorModal.js (Updated existing file)
+import React, { memo } from 'react';
+import ModalWrapper from './ModalWrapper';
 
-function ErrorModal({ onRetry, onClose }) {
+const ErrorModal = memo(({ isOpen, onRetry, onClose }) => {
+  if (!isOpen) return null;
+
   return (
-    <div className="modal" style={{ display: 'flex', position: 'fixed', inset: 0 }}> {/* Stile aggiornato */}
+    <ModalWrapper isOpen={isOpen}>
       <div className="modal-content">
         <h3>Il messaggio che prende forma davanti ai tuoi occhi non sembra avere alcun senso compiuto.</h3>
         <p className="error-message">Probabilmente la chiave di lettura non è corretta.</p>
@@ -13,8 +17,10 @@ function ErrorModal({ onRetry, onClose }) {
           <span className="home-icon">🏠</span> Messaggi Disponibili
         </button>
       </div>
-    </div>
+    </ModalWrapper>
   );
-}
+});
+
+ErrorModal.displayName = 'ErrorModal';
 
 export default ErrorModal;
