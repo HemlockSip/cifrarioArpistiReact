@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ScrollIcon from '../assets/icons/ScrollIcon';
 import ClosedScrollIcon from '../assets/icons/ClosedScrollIcon';
 
-function MessageCard({ message, onClick }) {
-  // Determine which icon to use based on opened status
+const MessageCard = memo(({ message, onClick }) => {
   const IconComponent = message.opened ? ScrollIcon : ClosedScrollIcon;
 
   return (
@@ -17,6 +16,8 @@ function MessageCard({ message, onClick }) {
       </div>
     </div>
   );
-}
+});
+
+MessageCard.displayName = 'MessageCard';
 
 export default MessageCard;

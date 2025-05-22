@@ -1,8 +1,12 @@
-import React from 'react';
+// src/components/DecryptedMessageModal.js (Updated existing file)
+import React, { memo } from 'react';
+import ModalWrapper from './ModalWrapper';
 
-function DecryptedMessageModal({ message, onClose }) {
+const DecryptedMessageModal = memo(({ isOpen, message, onClose }) => {
+  if (!isOpen) return null;
+
   return (
-    <div className="modal" style={{ display: 'flex', position: 'fixed', inset: 0 }}> {/* Stile aggiornato */}
+    <ModalWrapper isOpen={isOpen}>
       <div className="modal-content">
         <h3>Il messaggio prende forma davanti ai tuoi occhi</h3>
         <div className="message-display">
@@ -12,8 +16,10 @@ function DecryptedMessageModal({ message, onClose }) {
           <span className="home-icon">🏠</span> Messaggi Disponibili
         </button>
       </div>
-    </div>
+    </ModalWrapper>
   );
-}
+});
+
+DecryptedMessageModal.displayName = 'DecryptedMessageModal';
 
 export default DecryptedMessageModal;
